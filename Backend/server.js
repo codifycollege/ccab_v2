@@ -78,6 +78,7 @@ const dayRoutes = require('./routes/dayRoutes')
 const weekRoutes = require('./routes/weekRoutes')
 const quizAnswerRoutes = require('./routes/quizAnswerRoutes')
 const quizRoutes = require('./routes/quizRoutes')
+const orderRoutes = require('./routes/orderRoutes')
 
 app.use('/api/users', userRoutes)
 app.use('/api/tasks', taskRoutes)
@@ -87,6 +88,7 @@ app.use('/api/content', dayRoutes)
 app.use('/api/weeks', weekRoutes)
 app.use('/api/quizAnswer', quizAnswerRoutes)
 app.use('/api/quizzes', quizRoutes)
+app.use('/api/order', orderRoutes)
 
 app.listen(PORT, () => {
   console.log('The server is running on port: ' + PORT)

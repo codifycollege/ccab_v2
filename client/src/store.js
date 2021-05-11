@@ -68,6 +68,8 @@ import {
   quizAnswerListReducer
 } from './redux/reducers/quizAnswerReducer'
 
+import { orderCreateReducer } from './redux/reducers/orderReducer'
+
 const reducer = combineReducers({
   userLogin: userLoginReducer,
   userRegister: userRegisterReducer,
@@ -114,7 +116,8 @@ const reducer = combineReducers({
   quizAnswerMyList: quizAnswerMyListReducer,
   quizDelete: quizDeleteReducer,
   quizAnswerList: quizAnswerListReducer,
-  quizUpdate: quizUpdateReducer
+  quizUpdate: quizUpdateReducer,
+  orderCreate: orderCreateReducer
 })
 
 const userDetailsFromStorage = localStorage.getItem('userDetail')

@@ -7,6 +7,7 @@ import {
 } from '../../redux/actions/courseAction'
 import Message from '../layout/Message'
 import Loader from '../layout/Loader'
+import { Link } from 'react-router-dom';
 
 export default function CourseDetailScreen({ match }) {
   const ID = match.params.id
@@ -151,11 +152,11 @@ export default function CourseDetailScreen({ match }) {
                         23 hours left at this price!
                       </div>
 
-                      <a href="#" className="theme-btn btn-style-three">
+                      <Link to={`/checkout/${course._id}`} className="theme-btn btn-style-three">
                         <span className="txt">
-                          Inroll now <i className="fa fa-angle-right"></i>
+                          Enroll now <i className="fa fa-angle-right"></i>
                         </span>
-                      </a>
+                      </Link>
                 
                     </div>
                   </div>

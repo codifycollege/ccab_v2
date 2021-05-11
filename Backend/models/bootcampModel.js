@@ -19,6 +19,10 @@ const bootcampSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  category: {
+    type: String,
+    required: true
+  },
   description: {
     type: String,
     required: true
@@ -45,10 +49,8 @@ const bootcampSchema = new mongoose.Schema({
   },
   students: [
     {
-     
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-      
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
     }
   ],
 
@@ -76,7 +78,7 @@ const bootcampSchema = new mongoose.Schema({
       },
       items: [
         {
-          content: { type: String },
+          content: { type: String }
         }
       ]
     }

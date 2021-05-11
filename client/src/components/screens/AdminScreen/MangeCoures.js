@@ -9,207 +9,234 @@ import {
 } from './../../../redux/actions/courseAction'
 import Message from './../../layout/Message'
 import Loader from './../../layout/Loader'
-import {OverlayTrigger , Tooltip, Spinner} from 'react-bootstrap'
-import { Table, Col, Row, Modal, Button,  } from "react-bootstrap";
-import { ToastContainer, toast } from "react-toastify";
+import { OverlayTrigger, Tooltip, Spinner } from 'react-bootstrap'
+import { Table, Col, Row, Modal, Button } from 'react-bootstrap'
+import { ToastContainer, toast } from 'react-toastify'
 
-export default function MangeCourse({match}) {
+export default function MangeCourse({ match }) {
+  const dispatch = useDispatch()
 
+  const pageNumber = match.params.pageNumber || 1
 
+  /***********   Calling Reducer  ***************/
 
+  // Admin course list Reducer
+  const { loading: Deleteloading, error: DeleteError } = useSelector(
+    (state) => state.courseDelete
+  )
+  const { loading: Updateloading, error: UpdateError } = useSelector(
+    (state) => state.courseUpdate
+  )
 
-    const dispatch = useDispatch()
+  // Admin course list Reducer
+  const { courseList, page, pages, loading, error } = useSelector(
+    (state) => state.AdminCourseList
+  )
 
-    const pageNumber = match.params.pageNumber || 1
+  // add course  Reducer
+  const {
+    loading: Addloading,
+    error: AddError,
+    success: AddSuccess
+  } = useSelector((state) => state.courseCreate)
+  /************************************************************** */
 
-    /***********   Calling Reducer  ***************/
+  /************* Functions *************/
+  // tooltip function
+  const renderTooltip = (props) => (
+    <Tooltip id="button-tooltip" {...props}>
+      Publish
+    </Tooltip>
+  )
 
-        // Admin course list Reducer
-        const { loading :Deleteloading , error : DeleteError } = useSelector(
-            (state) => state.courseDelete
-          )
-           const { loading :Updateloading , error : UpdateError } = useSelector(
-            (state) => state.courseUpdate
-          )
+  const renderTooltipWithHold = (props) => (
+    <Tooltip id="button-tooltip" {...props}>
+      Withhold
+    </Tooltip>
+  )
 
-        // Admin course list Reducer
-        const { courseList , page, pages , loading, error } = useSelector(
-            (state) => state.AdminCourseList
-          )
+  // get date format
+  const getDate = (date) => {
+    let d = new Date(date)
+    return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate()
+  }
 
-        // add course  Reducer
-        const { loading :Addloading , error : AddError } = useSelector(
-            (state) => state.courseCreate
-          )
-     /************************************************************** */ 
+  // count the current week for each course
+  const getWeeksLeft = (StartDate) => {
+    let d = new Date(StartDate)
+    let timePassed = new Date().getTime() - d.getTime()
+    return Math.ceil(timePassed / 1000 / 60 / 60 / 24 / 7)
+  }
 
-     
-    /************* Functions *************/
-        // tooltip function
-        const renderTooltip = (props) => (
-            <Tooltip id="button-tooltip" {...props}>
-              Publish
-            </Tooltip>
-          );
+  /* delete couse handlers  */
+  const handleCloseDelete = () => setShow(false)
+  const handleShowDelete = () => setShow(true)
 
-     const renderTooltipWithHold = (props) => (
-            <Tooltip id="button-tooltip" {...props}>
-              Withhold
-            </Tooltip>
-          );
+  /* add course handles */
+  const handleCloseAdd = () => {
+    setShowAdd(false)
+    setWeeks('')
+    setAddnewCourseErr('')
+    dispatch({ type: 'COURSE_ADD_RESET' })
+  }
 
-          // get date format
-          const getDate=(date)=>{
-            let d= new Date(date)
-              return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate() ;
-          }
+  const handleShowAdd = () => setShowAdd(true)
+  // add course  function
+  const _addBootcampHandler = () => {
+    if (!weeks) {
+      setAddnewCourseErr('weeks should not be empty')
+    } else {
+      dispatch(createCourse({ weeks: weeks }))
+      dispatch(getCourseListForAdmin(pageNumber))
+      setWeeks('')
+      handleCloseAdd()
+    }
+  }
 
-          // count the current week for each course
-          const getWeeksLeft =(StartDate)=>{
-                let d = new Date(StartDate);
-                let timePassed = new Date().getTime() - d.getTime()
-              return Math.ceil(timePassed/1000/60/60/24/7);
-          }
+  // publish course
+  const publishhnadler = (course) => {
+    //console.log({...course , published:true,});
+    dispatch(
+      updateCourse(
+        {
+          ...course,
+          students: JSON.stringify(course.students),
+          published: true
+        },
+        course._id
+      )
+    )
+    dispatch(getCourseListForAdmin(pageNumber))
+  }
 
-          /* delete couse handlers  */
-          const handleCloseDelete = () => setShow(false);
-          const handleShowDelete = () => setShow(true);
+  // Withhold  course
+  const WithholdHnadler = (course) => {
+    //console.log({...course , published:true,});
+    dispatch(
+      updateCourse(
+        { name: course.name, video_path: course.video_path, published: false },
+        course._id
+      )
+    )
+    dispatch(getCourseListForAdmin(pageNumber))
+  }
 
-          /* add course handles */
-          const handleCloseAdd = () =>{ 
-            setShowAdd(false);
-            setWeeks(''); 
-            setAddnewCourseErr('');
-            dispatch({type:'COURSE_ADD_RESET'})
-          }
+  /**************************************************************** */
 
-          const handleShowAdd = () => setShowAdd(true);
-          // add course  function
-          const _addBootcampHandler =()=>{
-            if(!weeks){
-              setAddnewCourseErr('weeks should not be empty')
-            }else{
+  useEffect(() => {
+    dispatch(getCourseListForAdmin(pageNumber))
+  }, [dispatch, pageNumber, AddSuccess])
 
-              dispatch(createCourse({weeks:weeks}))
-              dispatch(getCourseListForAdmin(pageNumber))
-              setWeeks('');handleCloseAdd();
-            }
-         
-            
-            }
+  /*******************  State ********************* */
+  /* to show delete course model */
+  const [show, setShow] = useState(false)
 
+  /* to show add course model */
+  const [showAdd, setShowAdd] = useState(false)
 
-            // publish course 
-            const publishhnadler = (course)=>{
-              //console.log({...course , published:true,});
-                  dispatch(updateCourse({...course,
-                    students: JSON.stringify(course.students),
-                    published: true},course._id))
-                  dispatch(getCourseListForAdmin(pageNumber))
-            }
+  const [weeks, setWeeks] = useState('')
+  const [AddnewCourseErr, setAddnewCourseErr] = useState('')
+  // item id
+  const [DeletedCourse, setDeletedCourse] = useState('')
+  //console.log(DeletedCourse);
 
+  /************************************************** */
 
+  //console.log(courseList);
+  return (
+    <>
+      {/* Manage Cource Section */}
+      <div className="manage-cource-section">
+        <div className="auto-container">
+          {/* Sec Title */}
+          <div className="sec-title">
+            <div className="clearfix">
+              <div className="pull-left">
+                <h4>Manage Courses</h4>
+              </div>
+              <div className="pull-right ">
+                {/* Add couse Button */}
+                <a
+                  href="#"
+                  className="btn btn-danger bordered "
+                  onClick={handleShowAdd}
+                >
+                  {Addloading ? (
+                    <>
+                      {' '}
+                      <span className="mx-1">Adding</span>
+                      <Spinner animation="border" role="status" size="sm">
+                        <span className="sr-only">Loading...</span>
+                      </Spinner>{' '}
+                    </>
+                  ) : (
+                    'Add Course'
+                  )}
+                </a>
 
-            // Withhold  course 
-            const WithholdHnadler = (course)=>{
-              //console.log({...course , published:true,});
-                  dispatch(updateCourse({name:course.name, video_path:course.video_path, published:false,},course._id))
-                  dispatch(getCourseListForAdmin(pageNumber))
-            }
-   
-      /**************************************************************** */
+                <Modal show={showAdd} onHide={handleCloseAdd}>
+                  <Modal.Header closeButton>
+                    <Modal.Title>Add New Course</Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body>
+                    {(AddnewCourseErr || AddError) && (
+                      <Message variant="danger">
+                        {AddnewCourseErr || AddError}
+                      </Message>
+                    )}
 
-      useEffect(() => {
+                    <label className="d-block">
+                      Enter the total weeks to the new course :
+                    </label>
+                    <input
+                      type="number"
+                      value={weeks}
+                      className="border py-2"
+                      onChange={(e) => {
+                        setAddnewCourseErr('')
+                        setWeeks(e.target.value)
+                      }}
+                    />
+                    <p>You need to update the course after you add it!</p>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseAdd}>
+                      Close
+                    </Button>
+                    <Button variant="danger" onClick={_addBootcampHandler}>
+                      Ok
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
+              </div>
+            </div>
+          </div>
 
-        dispatch(getCourseListForAdmin(pageNumber))
-        
-      }, [dispatch,pageNumber])
-
-      /*******************  State ********************* */
-      /* to show delete course model */
-      const [show, setShow] = useState(false);
-
-      /* to show add course model */
-      const [showAdd, setShowAdd] = useState(false);
-
-      const[weeks , setWeeks]=useState('');
-      const [AddnewCourseErr , setAddnewCourseErr ] =useState('');
-      // item id 
-      const [DeletedCourse, setDeletedCourse] = useState("")
-      //console.log(DeletedCourse);
-
-      /************************************************** */
-
-      //console.log(courseList);
-    return (
-        <>
-
-            {/* Manage Cource Section */}
-            <div className="manage-cource-section" >
-            <div className="auto-container">
-                {/* Sec Title */}
-                <div className="sec-title">
-                <div className="clearfix">
-                   
-                    <div className="pull-left">
-                    <h4>Manage Courses</h4>
-                    </div>
-                    <div className="pull-right ">
-                        {/* Add couse Button */}
-                    <a href="#" className="btn btn-danger bordered " onClick={handleShowAdd}>
-                        {Addloading?<> <span className="mx-1">Adding</span>
-                           <Spinner animation="border" role="status" size="sm">
-                           <span className="sr-only">Loading...</span>
-                           </Spinner> </>
-                            
-                           :'Add Course'
-                        } 
-                    </a>
-
-                    <Modal show={showAdd} onHide={handleCloseAdd}>
-                        <Modal.Header closeButton>
-                          <Modal.Title>Add New Course</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body >
-                        {(AddnewCourseErr|| AddError)&&<Message variant="danger">{AddnewCourseErr||AddError}</Message>}
-                         
-                          <label className="d-block">Enter the total weeks to the new course :</label>
-                          <input type="number" value={weeks} className="border py-2"
-                          onChange={(e)=>{setAddnewCourseErr('');setWeeks(e.target.value)}}/>
-                        <p>You need to update the course after you add it!</p>
-                        </Modal.Body>
-                        <Modal.Footer>
-                          <Button variant="secondary" onClick={handleCloseAdd}>
-                            Close
-                          </Button>
-                          <Button
-                            variant="danger"
-                            onClick={_addBootcampHandler}>
-                            Ok
-                          </Button>
-                        </Modal.Footer>
-                    </Modal>
-                    </div>
-                 
-                </div>
-                </div>
-
-                <div className="inner-container">
-                <div className="container-content">
-                        {UpdateError?<p className="">{UpdateError}</p>:null}
-                    <Table  responsive="sm">
-                    <thead>
-                        <tr> 
-                            <th><h5>Title</h5></th>
-                            <th><h5>Start Date</h5></th>
-                            <th><h5>Weeks</h5></th>
-                            <th><h5>Status</h5></th>
-                            <th><h5>Action</h5></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                        <>
+          <div className="inner-container">
+            <div className="container-content">
+              {UpdateError ? <p className="">{UpdateError}</p> : null}
+              <Table responsive="sm">
+                <thead>
+                  <tr>
+                    <th>
+                      <h5>Title</h5>
+                    </th>
+                    <th>
+                      <h5>Start Date</h5>
+                    </th>
+                    <th>
+                      <h5>Weeks</h5>
+                    </th>
+                    <th>
+                      <h5>Status</h5>
+                    </th>
+                    <th>
+                      <h5>Action</h5>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <>
                     {loading ? (
                       <Loader />
                     ) : error ? (

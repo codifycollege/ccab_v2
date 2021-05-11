@@ -8,6 +8,7 @@ import ResultScreen from './components/screens/ResultScreen'
 import QuizScreen from './components/screens/QuizScreen'
 import CourseContentScreen from './components/screens/CourseContentScreen'
 import QuizAnswerScreen from './components/screens/QuizAnswerScreen'
+import Checkout from './components/screens/Checkout'
 
 import ErrorScreen from './components/screens/ErrorScreen'
 
@@ -204,6 +205,12 @@ function App() {
           exact
           path="/quiz-answer/:bootcampId/:weekId/:id"
           component={QuizAnswerScreen}
+        ></StudentRoute>
+
+        <StudentRoute
+          exact
+          path="/checkout/:bootcampId"
+          component={Checkout}
         ></StudentRoute>
 
         {/* default Routes for guests  */}
